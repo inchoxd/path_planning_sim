@@ -72,67 +72,6 @@ class Sim:
         return graph
 
 
-    def _dec_next_node(self, nodes:tuple, mode:str='euc') -> tuple:
-        next_node:tuple = (0, 0)
-        l_fn:list = [ 0.0 for i in range(len(nodes)) ]
-        for i, node in enumerate(nodes):
-            if mode =='euc':
-                distance:float = math.sqrt((self.start[0] - node[0][0]) ** 2 + (self.start[1] - node[0][1]) ** 2) + math.sqrt((self.goal[0] - node[0][0]) ** 2 + (self.goal[1] - node[0][1]) ** 2)
-                fn:float = node[1] + distance
-            elif mode == 'mht':
-                distance:int = abs(node[0][0] - self.goal[0]) + abs(node[0][1] - self.goal[1])
-                fn:float = node[1] + distance
-            l_fn[i] = fn
-
-        print(nodes)
-        print(l_fn)
-        print(nodes[l_fn.index(min(l_fn))][0])
-        print('-'*20)
-        next_node = nodes[l_fn.index(min(l_fn))][0]
-
-        return next_node
-
-
-    def _rollback(self, checked:deque, graph:dict) -> tuple:
-        nodes:tuple = (0, 0)
-        while True:
-            rlbk_node = checked.pop()
-            #print(rlbk_node)
-            #print(graph[rlbk_node])
-            if len(graph[rlbk_node]) > 2:
-                checked.append(rlbk_node)
-                return rlbk_node
-
-
-    def a_star(self, graph:dict) -> deque:
-        i = 0
-        checked:deque = deque([])
-        checked.append(self.start)
-        crr_node:tuple = self.start
-        next_nodes:deque = deque([])
-        checked:deque = deque([])
-        while True:
-            #print(crr_node)
-            checked.append(crr_node)
-            next_nodes = [node for node in graph[crr_node] if node[0] not in checked]
-            len_next_nodes:int = len(next_nodes)
-            if 0 < len_next_nodes <= 1:
-                crr_node = next_nodes[0][0]
-                checked.append(crr_node)
-            elif len_next_nodes > 1:
-                crr_node = self._dec_next_node(next_nodes)
-                checked.append(crr_node)
-            else:
-                #print(next_nodes)
-                crr_node = self._rollback(checked, graph)
-                #print(crr_node)
-
-            if crr_node == self.goal:
-                break
-
-        return checked
-
-
 if __name__ == '__main__':
     """
     map_data = [
