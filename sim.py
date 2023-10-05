@@ -56,6 +56,7 @@ class Sim:
     def _is_valid_move(self, map_data:list, x:int, y:int) -> bool:
         if 0 <= x < self.width and 0 <= y < self.height:
             return map_data[y][x] != 'x'
+
         return False
 
 
@@ -76,35 +77,37 @@ class Sim:
         l_fn:list = [ 0.0 for i in range(len(nodes)) ]
         for i, node in enumerate(nodes):
             if mode =='euc':
-                distance:float = math.sqrt((self.goal[0] - node[0][0]) ** 2 + (self.goal[1] - node[0][1]) ** 2)
+                distance:float = math.sqrt((self.start[0] - node[0][0]) ** 2 + (self.start[1] - node[0][1]) ** 2) + math.sqrt((self.goal[0] - node[0][0]) ** 2 + (self.goal[1] - node[0][1]) ** 2)
                 fn:float = node[1] + distance
             elif mode == 'mht':
                 distance:int = abs(node[0][0] - self.goal[0]) + abs(node[0][1] - self.goal[1])
                 fn:float = node[1] + distance
             l_fn[i] = fn
 
-        #print(nodes)
-        #print(l_fn)
+        print(nodes)
+        print(l_fn)
+        print(nodes[l_fn.index(min(l_fn))][0])
+        print('-'*20)
         next_node = nodes[l_fn.index(min(l_fn))][0]
 
         return next_node
 
 
-    def _rollback(self, route:deque, graph:dict) -> tuple:
+    def _rollback(self, checked:deque, graph:dict) -> tuple:
         nodes:tuple = (0, 0)
         while True:
-            rlbk_node = route.pop()
+            rlbk_node = checked.pop()
             #print(rlbk_node)
             #print(graph[rlbk_node])
             if len(graph[rlbk_node]) > 2:
-                route.append(rlbk_node)
+                checked.append(rlbk_node)
                 return rlbk_node
 
 
     def a_star(self, graph:dict) -> deque:
         i = 0
-        route:deque = deque([])
-        route.append(self.start)
+        checked:deque = deque([])
+        checked.append(self.start)
         crr_node:tuple = self.start
         next_nodes:deque = deque([])
         checked:deque = deque([])
@@ -115,22 +118,32 @@ class Sim:
             len_next_nodes:int = len(next_nodes)
             if 0 < len_next_nodes <= 1:
                 crr_node = next_nodes[0][0]
-                route.append(crr_node)
+                checked.append(crr_node)
             elif len_next_nodes > 1:
                 crr_node = self._dec_next_node(next_nodes)
-                route.append(crr_node)
+                checked.append(crr_node)
             else:
                 #print(next_nodes)
-                crr_node = self._rollback(route, graph)
+                crr_node = self._rollback(checked, graph)
                 #print(crr_node)
 
             if crr_node == self.goal:
                 break
 
-        return route
+        return checked
 
 
 if __name__ == '__main__':
+    """
+    map_data = [
+            'xxxxxxxxxx',
+            'x        x',
+            'x  xxxx  x',
+            'x     x  x',
+            'x S   x Gx',
+            'x     x  x',
+            'xxxxxxxxxx'
+            ]
     """
     map_data = [
             'xxxxxxxxxxx',
@@ -145,6 +158,7 @@ if __name__ == '__main__':
             'xS    x   x',
             'xxxxxxxxxxx',
             ]
+    """
     map_data = [
             'xxxxxxxxxxxx',
             'xSx   x    x',
@@ -159,7 +173,6 @@ if __name__ == '__main__':
             'x     x    x',
             'xxxxxxxxxxxx'
             ]
-    """
     map_data = [
             'xxxxxxxxxxxx',
             'xSx        x',
@@ -174,10 +187,13 @@ if __name__ == '__main__':
             'x     x    x',
             'xxxxxxxxxxxx'
             ]
+    """
     sim = Sim(map_data)
     graph = sim.create_graph(map_data)
+    sim.draw_map()
+    [print(k, graph[k]) for k in graph]
     route = sim.a_star(graph)
-    print(len(route))
+    print(route)
     sim.draw_map(route=route)
 
     plt.show()
