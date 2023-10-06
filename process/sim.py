@@ -27,19 +27,13 @@ class Sim:
                     self.goal:tuple = (x, y)
             
 
-    def _draw_map(self, ax=None, route:deque=None) -> None:
+    def _draw_map(self, ax, route:deque) -> None:
         if ax is None:
             fig, ax = plt.subplots(1, 1, figsize=(6, 6))
 
         ax.axis('off')
 
         if route is not None:
-            """
-            for i, node in enumerate(route):
-                x:int = node[0]
-                y:int = node[1]
-                self.data[y][x] = [0, 255, 0]
-            """
             for i in range(len(route)):
                 node:tuple = route.popleft()
                 x:int = node[0]
@@ -53,6 +47,6 @@ class Sim:
         tx_go = ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
 
 
-    def show_graph(self) -> None:
-        self._draw_map()
+    def show_graph(self, ax=None, route:deque=None) -> None:
+        self._draw_map(ax, route)
         plt.show()
