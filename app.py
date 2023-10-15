@@ -1,5 +1,5 @@
 import argparse as argp
-from process import Sim, Graph
+from process import Sim, Graph, Astar
 
 
 class App:
@@ -16,11 +16,13 @@ class App:
 
         self.sim:process.sim.Sim = Sim(self.map_data)
         self.graph:process.graph.Graph = Graph(self.map_data)
+        self.a_star = Astar()
 
 
     def main(self):
-        graph = self.graph.create_graph()
-        self.sim.show_graph()
+        graph:dict = self.graph.create_graph()
+        route:list = self.a_star.a_star(graph, self.sim.start, self.sim.goal)
+        self.sim.show_graph(route=route)
 
 
 if __name__ == '__main__':
