@@ -34,8 +34,7 @@ class Sim:
         ax.axis('off')
 
         if route is not None:
-            for i in range(len(route)):
-                node:tuple = route.popleft()
+            for node in route:
                 x:int = node[0]
                 y:int = node[1]
                 self.data[y][x] = [0, 255, 0]
