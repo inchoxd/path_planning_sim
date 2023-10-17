@@ -5,10 +5,12 @@ from process import Sim, Graph, Astar
 class App:
     def __init__(self):
         prsr = argp.ArgumentParser()
-        prsr.add_argument('-f', required=True)
+        prsr.add_argument('-f', required=True, help='input file path of map data')
+        prsr.add_argument('--no_route', action='store_false', help='do not show route on the sim')
         args = prsr.parse_args()
 
         ld_map = args.f
+        self.is_route_show = args.no_route
         ext = ld_map.split('.')[1]
         with open(args.f, 'r') as dta:
             if ext == 'txt':
@@ -22,7 +24,7 @@ class App:
     def main(self):
         graph:dict = self.graph.create_graph()
         route:list = self.a_star.a_star(graph, self.sim.start, self.sim.goal)
-        self.sim.show_graph(route=route)
+        self.sim.show_graph(route=(route if self.is_route_show else []))
 
 
 if __name__ == '__main__':
