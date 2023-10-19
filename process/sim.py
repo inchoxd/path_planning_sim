@@ -2,8 +2,7 @@ import math
 from collections import deque
 
 import matplotlib.pyplot as plt
-import matplotlib.animation as animation
-
+from matplotlib.animation import FuncAnimation as fanim
 
 class Sim:
     def __init__(self, map_data:list) -> None:
@@ -25,15 +24,19 @@ class Sim:
                     self.start:tuple = (x, y)
                 elif block == 'G':
                     self.goal:tuple = (x, y)
-            
 
-    def _draw_map(self, ax, route:deque) -> None:
-        if ax is None:
-            fig, ax = plt.subplots(1, 1, figsize=(6, 6))
 
-        ax.axis('off')
+    def _update(self, i) -> None:
+        sc_rbt = self.ax.scatter([self.router[len(self.router) - i - 1][0]], [self.router[len(self.router) - i - 1][1]], c='yellow', s=300)
 
-        if route is not None:
+
+    def _draw_map(self, route:deque, show_route, animation:bool) -> None:
+        fig, self.ax = plt.subplots(1, 1, figsize=(6, 6))
+
+        self.ax.axis('off')
+
+        self.router:deque = route.copy() if animation else deque([]) 
+        if show_route:
             i:int = 0
             for i in range(len(route)):
                 node:tuple = route.popleft()
@@ -41,13 +44,18 @@ class Sim:
                 y:int = node[1]
                 self.data[y][x] = [0, 255, 0]
 
-        im = ax.imshow(self.data, origin='upper')
-        sc_st = ax.scatter([self.start[0]], [self.start[1]], c='b', s=300)
-        tx_st = ax.text(self.start[0], self.start[1], 'S', ha='center', va='center', fontsize=15, c='w', weight='bold')
-        sc_go = ax.scatter([self.goal[0]],  [self.goal[1]],  c='r', s=300)
-        tx_go = ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
+        im = self.ax.imshow(self.data, origin='upper')
+        sc_st = self.ax.scatter([self.start[0]], [self.start[1]], c='b', s=300)
+        tx_st = self.ax.text(self.start[0], self.start[1], 'S', ha='center', va='center', fontsize=15, c='w', weight='bold')
+        sc_go = self.ax.scatter([self.goal[0]],  [self.goal[1]],  c='r', s=300)
+        tx_go = self.ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
+
+        if animation:
+            anim = fanim(fig, self._update)
+
+            return anim
 
 
-    def show_graph(self, ax=None, route:deque=None) -> None:
-        self._draw_map(ax, route)
+    def show_graph(self, ax=None, route:deque=None, show_route:bool=True, animation:bool=True) -> None:
+        show = self._draw_map(route, show_route, animation)
         plt.show()
