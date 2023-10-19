@@ -10,7 +10,7 @@ class Graph:
 
     def _is_valid_move(self, x:int, y:int) -> bool:
         if 0 <= x < self.width and 0 <= y < self.height:
-            return self.map_data[y][x] != 'x'
+            return self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] == 255
 
         return False
 
@@ -21,7 +21,7 @@ class Graph:
 
         for y in range(self.height):
             for x in range(self.width):
-                if self.map_data[y][x] != 'x':
+                if self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] == 255:
                     nb = [ (x + dx, y + dy) for dx, dy in moves if self._is_valid_move(x + dx, y + dy) ]
                     graph[(x, y)] = nb
 

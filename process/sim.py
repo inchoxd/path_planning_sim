@@ -15,6 +15,8 @@ class Sim:
         y:int = 0
         horizontal:str = ''
         block:str = ''
+        self.start = (13, 1)
+        self.goal = (7, 1)
 
         for y, horizontal in enumerate(map_data):
             for x, block in enumerate(horizontal):
@@ -24,6 +26,8 @@ class Sim:
                     self.start:tuple = (x, y)
                 elif block == 'G':
                     self.goal:tuple = (x, y)
+                elif type(block) is int and block == 0:
+                    self.data[y][x] = self.wall
 
 
     def _update(self, i) -> None:
