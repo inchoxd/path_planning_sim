@@ -16,7 +16,7 @@ class Sim:
         horizontal:str = ''
         block:str = ''
         self.start = (13, 1)
-        self.goal = (7, 1)
+        self.goal = (5, 10)
 
         for y, horizontal in enumerate(map_data):
             for x, block in enumerate(horizontal):
@@ -31,6 +31,8 @@ class Sim:
 
 
     def _update(self, i) -> None:
+        if i > len(self.router):
+            return None
         sc_rbt = self.ax.scatter([self.router[len(self.router) - i - 1][0]], [self.router[len(self.router) - i - 1][1]], c='yellow', s=300)
 
 
