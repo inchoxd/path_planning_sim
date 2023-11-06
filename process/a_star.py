@@ -8,12 +8,12 @@ class Astar:
         self.goal:tuple = (0, 0)
 
 
-    def _calc_score(self, node:tuple) -> float:
+    def _calc_score(self, node:tuple, s:float=0.0, v:float=1.0) -> float:
         sdx = node[0] - self.start[0] 
         sdy = node[1] - self.start[1]
         gdx = self.goal[0] - node[0] 
         gdy = self.goal[1] - node[1]
-        score:float = (abs(sdx) + abs(sdy)) + math.sqrt((gdx ** 2) + (gdy ** 2))
+        score:float = (((abs(sdx) + abs(sdy)) / v) + s) + math.sqrt((gdx ** 2) + (gdy ** 2))
 
         return score
 
@@ -47,18 +47,22 @@ class Astar:
 
                 opn_poses = [ opn_dataset['node_pos'] for opn_dataset in opened ]
                 cls_poses = [ cls_dataset['node_pos'] for cls_dataset in closed ]
-                chld_nodes:list = graph[node['node_pos']]
+                chld_nodes:list = graph[node['node_pos']][2:]
+                s:float = graph[node['node_pos']][0]
+                v:float = graph[node['node_pos']][1]
                 for chld_node in chld_nodes:
                     dataset = {
                             'node_pos':chld_node,
                             'parent':node['node_pos'],
-                            'score':self._calc_score(chld_node)
+                            'score':self._calc_score(chld_node, s, v)
                             }
 
                     if dataset['node_pos'] not in opn_poses and dataset['node_pos'] not in cls_poses:
                         opened.append(dataset)
                     else:
-                        for opn_dataset, cls_dataset in zip(opened, closed):
+                        tmp_opened = list(opened)
+                        tmp_closed = list(closed)
+                        for opn_dataset, cls_dataset in zip(tmp_opened, tmp_closed):
                             if dataset['node_pos'] == opn_dataset['node_pos'] and dataset['score'] < opn_dataset['score']:
                                 opened.append(dataset)
                                 opened.remove(opn_dataset)

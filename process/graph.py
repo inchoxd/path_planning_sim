@@ -10,19 +10,23 @@ class Graph:
 
     def _is_valid_move(self, x:int, y:int) -> bool:
         if 0 <= x < self.width and 0 <= y < self.height:
-            return self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] == 255
+            return self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] > 51
 
         return False
 
 
-    def create_graph(self) -> list:
+    def create_graph(self, is_pls_score) -> list:
         graph:dict = {}
         moves:list = [(-1, 0), (1, 0), (0, -1), (0, 1)]
 
         for y in range(self.height):
             for x in range(self.width):
-                if self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] == 255:
+                if self.map_data[y][x] == ' ' or self.map_data[y][x] == 'S' or self.map_data[y][x] == 'G' or self.map_data[y][x] > 51:
                     nb = [ (x + dx, y + dy) for dx, dy in moves if self._is_valid_move(x + dx, y + dy) ]
+                    if self.map_data[y][x] == 204 and is_pls_score:
+                        nb = [0.0, 0.5] + nb
+                    else:
+                        nb = [0.0, 0.75] + nb
                     graph[(x, y)] = nb
 
         return graph
