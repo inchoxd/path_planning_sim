@@ -35,9 +35,9 @@ class Sim:
         if i >= len(self.router):
             return None
         if self.update_times > 0:
+
             crr:tuple = self.router[len(self.router)-i-1]
             nxt:tuple = self.router[len(self.router)-i-2 if len(self.router)>i+1 else len(self.router)-i-1]
-            sc_rbt = self.ax.scatter([self.router[len(self.router) - i - 1][0]], [self.router[len(self.router) - i - 1][1]], c='yellow', s=300)
             sc_rbt = self.ax.scatter([crr[0]], [crr[1]], c='yellow', s=300)
         self.update_times += 1
 
