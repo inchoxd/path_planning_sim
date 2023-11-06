@@ -15,8 +15,9 @@ class Sim:
         y:int = 0
         horizontal:str = ''
         block:str = ''
-        self.start = (13, 1)
-        self.goal = (5, 10)
+        self.start:tuple = (13, 1)
+        self.goal:tuple = (5, 10)
+        self.update_times:int = 0
 
         for y, horizontal in enumerate(map_data):
             for x, block in enumerate(horizontal):
@@ -31,9 +32,14 @@ class Sim:
 
 
     def _update(self, i) -> None:
-        if i > len(self.router):
+        if i >= len(self.router):
             return None
-        sc_rbt = self.ax.scatter([self.router[len(self.router) - i - 1][0]], [self.router[len(self.router) - i - 1][1]], c='yellow', s=300)
+        if self.update_times > 0:
+            crr:tuple = self.router[len(self.router)-i-1]
+            nxt:tuple = self.router[len(self.router)-i-2 if len(self.router)>i+1 else len(self.router)-i-1]
+            sc_rbt = self.ax.scatter([self.router[len(self.router) - i - 1][0]], [self.router[len(self.router) - i - 1][1]], c='yellow', s=300)
+            sc_rbt = self.ax.scatter([crr[0]], [crr[1]], c='yellow', s=300)
+        self.update_times += 1
 
 
     def _draw_map(self, route:deque, show_route, animation:bool) -> None:
