@@ -8,6 +8,7 @@ class App:
         prsr.add_argument('-f', required=True, help='input file path of map data')
         prsr.add_argument('--no_route', action='store_false', help='do not show route on the sim')
         prsr.add_argument('--no_anime', action='store_false', help='disable animation')
+        prsr.add_argument('--no_plus_score', action='store_false', help='disable new feature')
         self.args = prsr.parse_args()
 
         dta:str = ''
@@ -27,7 +28,7 @@ class App:
 
 
     def main(self):
-        graph:dict = self.graph.create_graph()
+        graph:dict = self.graph.create_graph(self.args.no_plus_score)
         route:list = self.a_star.a_star(graph, self.sim.start, self.sim.goal)
         self.sim.show_graph(route=route, show_route=(route if self.args.no_route else []), animation=self.args.no_anime)
 
