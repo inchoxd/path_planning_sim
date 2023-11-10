@@ -1,4 +1,5 @@
 import math
+import numpy as np
 from collections import deque
 
 import matplotlib.pyplot as plt
@@ -31,23 +32,25 @@ class Sim:
                     self.data[y][x] = self.wall
 
 
-    def _update(self, i) -> None:
-        if i >= len(self.router):
+    def _update(self, frames) -> None:
+        if frames >= len(self.draw_router):
             return None
         if self.update_times > 0:
+            pos = self.draw_router.popleft()
+            location = self.sc_rbt.pop(0)
+            location.remove()
+            self.sc_rbt = self.ax.plot(pos[0], pos[1], 'yo', ms=14, mew=0, mfc='black')
 
-            crr:tuple = self.router[len(self.router)-i-1]
-            nxt:tuple = self.router[len(self.router)-i-2 if len(self.router)>i+1 else len(self.router)-i-1]
-            sc_rbt = self.ax.scatter([crr[0]], [crr[1]], c='yellow', s=300)
         self.update_times += 1
 
 
     def _draw_map(self, route:deque, show_route, animation:bool) -> None:
         fig, self.ax = plt.subplots(1, 1, figsize=(6, 6))
 
+        self.sc_rbt = self.ax.plot(0, 0)
         self.ax.axis('off')
 
-        self.router:deque = route.copy() if animation else deque([]) 
+        router:deque = route.copy() if animation else deque([]) 
         if show_route:
             i:int = 0
             for i in range(len(route)):
@@ -63,7 +66,32 @@ class Sim:
         tx_go = self.ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
 
         if animation:
-            anim = fanim(fig, self._update)
+            self.draw_router:deque = deque([])
+            digit:int = 0
+            crr:tuple = ()
+            nxt:tuple = ()
+
+            for step in range(len(router)):
+                crr = router[len(router) - step - 1]
+                nxt = router[len(router) - step - 2 if len(router) > step + 1 else len(router) - step - 1]
+                dx:int = crr[0] - nxt[0]
+                dy:int = crr[1] - nxt[1]
+                x:float = float(crr[0])
+                y:float = float(crr[1])
+                for digit in range(40):
+                    if dx > 0:
+                        x = crr[0] + (digit * -0.025)
+                    elif dx < 0:
+                        x = crr[0] + (digit * 0.025)
+                    if dy > 0:
+                        y = crr[1] + (digit * -0.025)
+                    elif dy < 0:
+                        y = crr[1] + (digit * 0.025)
+                    self.draw_router.append((round(x, 2), round(y, 2))) 
+                    if len(router) <= step + 1:
+                        break
+
+            anim = fanim(fig, self._update, frames=1, interval=20)
 
             return anim
 
