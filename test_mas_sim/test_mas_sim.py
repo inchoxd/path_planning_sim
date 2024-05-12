@@ -30,6 +30,10 @@ import matplotlib.animation as animation
 ############################################################
 # エージェントの定義
 ############################################################
+# - エージェントの進み方，障害物やほかのエージェントと衝突
+#   した場合など，動きに関する行動ルールを定義する．
+# - エージェントは前か右へ0.5進むか静止するように行動を定義
+############################################################
 class CustomerAgent:
     def __init__(self, x:float, y:float):
         # エージェントの初期位置
@@ -37,7 +41,7 @@ class CustomerAgent:
         self.y:float = y
 
 
-    def move(self, obstacles, other_agents, width:int, height:int):
+    def move(self, obstacles, other_agents, width:int, height:int) -> None:
         # 新しいエージェントの位置を決定
         new_x:float = self.x + random.choice([0, 0.5])
         new_y:float = self.y + random.choice([0, 0.5])
@@ -61,3 +65,44 @@ class CustomerAgent:
         # 移動を更新
         self.x, self,y = new_x, new_y
 
+
+"""
+# 環境のモデリング
+## 環境のモデリングの要素
+- インタラクティブな環境: エージェントは，仮想環境内で操作される．この環境はエージェントに影響を与え，その反応によって変化することがある．
+- リアルタイムな動的変化: 環境は時間と共に変化する．エージェントの行動にも影響を受ける．
+"""
+############################################################
+# エージェントの定義
+############################################################
+# - 店の広さや障害物の設定などシミュレーション環境の定義を
+#   行う
+# - エージェントは最初左下に位置し，入店する．
+#   中央に商品だなを設置する，
+############################################################
+class Sim:
+    def __init__(self, store_width:int, store_height:int, num_agent:int, obstacles:list):
+        self.store_width:int = store_width      # 店の横幅
+        self.store_height:int = store_height    # 店の奥行き
+
+        # 障害物の設定
+        self.obstacles:list = [(5,5), (5.5, 5), (5, 6), (5.5, 6), (6,6)]    # 店の中央に配置
+
+        # エージェントの初期位置設置と生成
+        ca = CustomerAgent(1, 1)
+        self.agents:list = [ ca for _ in range(num_agent) ]
+
+
+    def update_positions(width:int, height:int) -> list:
+        for agent in self.agents:
+            agent.ca.move(self.obstacles, [ a for a in self.agents if a != agent ], width, height)
+
+        return [ (agent.x, agent.y) for agent in agents ]
+
+
+    def run_sim(num_step:int) -> None:
+        position_over_time:list = []
+
+        for step in range(num_step):
+            positions = self.update_positions(self.store_width, self.store_height)
+            position_over_time.append(positions)
