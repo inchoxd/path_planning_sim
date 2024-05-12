@@ -63,7 +63,7 @@ class CustomerAgent:
                 return # 移動しない
 
         # 移動を更新
-        self.x, self,y = new_x, new_y
+        self.x, self.y = new_x, new_y
 
 
 """
@@ -81,28 +81,59 @@ class CustomerAgent:
 #   中央に商品だなを設置する，
 ############################################################
 class Sim:
-    def __init__(self, store_width:int, store_height:int, num_agent:int, obstacles:list):
+    def __init__(self, store_width:int, store_height:int, num_agent:int, obstacles:list, num_steps:int):
         self.store_width:int = store_width      # 店の横幅
         self.store_height:int = store_height    # 店の奥行き
+        self.position_over_time:list = []
 
-        # 障害物の設定
-        self.obstacles:list = [(5,5), (5.5, 5), (5, 6), (5.5, 6), (6,6)]    # 店の中央に配置
+        self.obstacles:list = obstacles
 
         # エージェントの初期位置設置と生成
-        ca = CustomerAgent(1, 1)
-        self.agents:list = [ ca for _ in range(num_agent) ]
+        self.ca = CustomerAgent(1, 1)
+        self.agents:list = [ CustomerAgent(1, 1) for _ in range(num_agent) ]
+
+        self.num_steps:int = num_steps
+
+        # アニメーションの設定
+        self.fig, self.ax = plt.subplots(figsize=(5, 5))
 
 
-    def update_positions(width:int, height:int) -> list:
+    def update_positions(self, width:int, height:int) -> list:
         for agent in self.agents:
-            agent.ca.move(self.obstacles, [ a for a in self.agents if a != agent ], width, height)
+            agent.move(self.obstacles, [ a for a in self.agents if a != agent ], width, height)
 
-        return [ (agent.x, agent.y) for agent in agents ]
+        return [ (agent.x, agent.y) for agent in self.agents ]
 
 
-    def run_sim(num_step:int) -> None:
-        position_over_time:list = []
-
-        for step in range(num_step):
+    def run_sim(self) -> None:
+        for step in range(self.num_steps):
             positions = self.update_positions(self.store_width, self.store_height)
-            position_over_time.append(positions)
+            self.position_over_time.append(positions)
+
+
+    def animate_sim(self, step:int) -> None:
+        self.ax.clear()
+        self.ax.set_xlim(0, self.store_width)
+        self.ax.set_ylim(0, self.store_height)
+        x_values, y_values = zip(*self.position_over_time[step])
+        self.ax.scatter(x_values, y_values, label='Customers')
+        obs_x, obs_y = zip(*self.obstacles)
+        self.ax.scatter(obs_x, obs_y, color='red', marker=',', label='Obstacles')
+        self.ax.legend()
+        self.ax.set_title(f'Step {step}')
+
+
+    def app(self, f_path:str, save_mov:bool) -> None:
+        ani = animation.FuncAnimation(self.fig, self.animate_sim, frames=self.num_steps, repeat=False)
+        plt.show()
+        if save_mov:
+            ani.save(f_path, writer='ffmpeg', fps=1)
+
+
+if __name__ == '__main__':
+    num_agent:int = 10
+    obstacles:list = [(5,5), (5.5, 5), (6, 5), (5, 6), (5.5, 6), (6,6)]    # 障害物の設定, 店の中央に配置
+    num_steps:int = 50
+    sim = Sim(10, 10, num_agent, obstacles, num_steps)
+    sim.run_sim()
+    sim.app('./result.mp4', True)
