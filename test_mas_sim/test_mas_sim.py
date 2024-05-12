@@ -127,7 +127,7 @@ class Sim:
         ani = animation.FuncAnimation(self.fig, self.animate_sim, frames=self.num_steps, repeat=False)
         plt.show()
         if save_mov:
-            ani.save(f_path, writer='ffmpeg', fps=1)
+            ani.save(f_path, writer='imagemagick', fps=1)
 
 
 if __name__ == '__main__':
@@ -136,4 +136,4 @@ if __name__ == '__main__':
     num_steps:int = 50
     sim = Sim(10, 10, num_agent, obstacles, num_steps)
     sim.run_sim()
-    sim.app('./result.mp4', True)
+    sim.app('./result.gif', True)
