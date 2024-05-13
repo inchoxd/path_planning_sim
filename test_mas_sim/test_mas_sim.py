@@ -136,4 +136,4 @@ if __name__ == '__main__':
     num_steps:int = 50
     sim = Sim(10, 10, num_agent, obstacles, num_steps)
     sim.run_sim()
-    sim.app('./result.gif', True)
+    sim.app('./result.gif', False)
