@@ -73,7 +73,7 @@ class CustomerAgent:
 - リアルタイムな動的変化: 環境は時間と共に変化する．エージェントの行動にも影響を受ける．
 """
 ############################################################
-# エージェントの定義
+# 環境のモデリング
 ############################################################
 # - 店の広さや障害物の設定などシミュレーション環境の定義を
 #   行う
@@ -89,7 +89,6 @@ class Sim:
         self.obstacles:list = obstacles
 
         # エージェントの初期位置設置と生成
-        self.ca = CustomerAgent(1, 1)
         self.agents:list = [ CustomerAgent(1, 1) for _ in range(num_agent) ]
 
         self.num_steps:int = num_steps
