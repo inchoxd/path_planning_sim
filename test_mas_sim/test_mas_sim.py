@@ -106,7 +106,7 @@ class Sim:
 
     def run_sim(self) -> None:
         for step in range(self.num_steps):
-            positions = self.update_positions(self.store_width, self.store_height)
+            positions:list = self.update_positions(self.store_width, self.store_height)
             self.position_over_time.append(positions)
 
 
