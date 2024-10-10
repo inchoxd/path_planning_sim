@@ -10,6 +10,7 @@ class App:
         prsr.add_argument('-f', required=True, help='input file path of map data')
         prsr.add_argument('-s', required=True, help='input pos of start')
         prsr.add_argument('-g', required=True, help='input pos of goal')
+        prsr.add_argument('-mas', help='enable mas system')
         prsr.add_argument('--no_app', action='store_false', help='do not run application mode')
         prsr.add_argument('--no_route', action='store_false', help='do not show route on the sim')
         prsr.add_argument('--no_anime', action='store_false', help='disable animation')
@@ -32,6 +33,10 @@ class App:
             ext:str = self.args.f.split('.')[1]
             start:tuple = tuple([ int(p) for p in self.args.s.split(',') ])
             goal:tuple = tuple([ int(p) for p in self.args.g.split(',') ])
+            self.mas_customers:int = 0
+
+            if self.args.mas:
+                self.mas_customers = int(self.args.mas)
 
             with open(self.args.f, 'r') as dta:
                 f_data:list = dta.readlines()
@@ -56,7 +61,7 @@ class App:
             route:list = self.a_star.a_star(graph, self.sim.start, self.sim.goal)
 
             if self.args.no_app == False:
-                self.sim.show_graph(route=route, show_route=self.args.no_route, animation=self.args.no_anime, graph=(graph if self.args.no_anime and self.args.no_plus_score else self.graph.create_graph(not self.args.no_plus_score) if self.args.no_anime and not self.args.no_plus_score else {}), mode=self.args.no_plus_score)
+                self.sim.show_graph(route=route, show_route=self.args.no_route, animation=self.args.no_anime, mas_customers=self.mas_customers, graph=(graph if self.args.no_anime and self.args.no_plus_score else self.graph.create_graph(not self.args.no_plus_score) if self.args.no_anime and not self.args.no_plus_score else {}), mode=self.args.no_plus_score)
         if len(sys.argv) <=1 or self.args.no_app:
             event:str = ''
             values:list = []
