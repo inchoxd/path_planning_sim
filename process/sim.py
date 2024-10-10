@@ -5,6 +5,9 @@ from collections import deque
 import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation as fanim
 
+from .graph import Graph
+
+
 class Sim:
     def __init__(self, map_data:list, start:tuple, goal:tuple) -> None:
         self.height:int = len(map_data)
@@ -26,6 +29,8 @@ class Sim:
         #self.goal:tuple = (5, 10)
         #self.goal:tuple = (3, 9)
         self.update_times:int = 0
+
+        self.graph:process.graph.Graph = Graph(map_data)
 
         for y, horizontal in enumerate(map_data):
             for x, block in enumerate(horizontal):
@@ -55,7 +60,7 @@ class Sim:
         self.update_times += 1
 
 
-    def _draw_map(self, route:deque, show_route:bool, animation:bool, graph:dict,  mode:bool) -> fanim:
+    def _draw_map(self, route:deque, show_route:bool, animation:bool, mas_customers:int, graph:dict,  mode:bool) -> fanim:
         fig, self.ax = plt.subplots(1, 1, figsize=(6, 6))
         if mode:
             window_title:str = "改良版A*アルゴリズム"
@@ -82,11 +87,12 @@ class Sim:
         sc_go = self.ax.scatter([self.goal[0]],  [self.goal[1]],  c='r', s=300)
         tx_go = self.ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
 
-        if animation:
+        if animation or mas_customers > 0:
             self.draw_router:deque = deque([])
             digit:int = 0
             crr:tuple = ()
             nxt:tuple = ()
+            obstracts:list = self.graph.get_obstract()
 
             for step in range(len(router)):
                 crr = router[len(router) - step - 1]
@@ -130,6 +136,6 @@ class Sim:
         return None
 
 
-    def show_graph(self, ax=None, route:deque=None, show_route:bool=True, animation:bool=True, graph:dict={}, mode:bool=True) -> None:
-        show = self._draw_map(route, show_route, animation, graph, mode)
+    def show_graph(self, ax=None, route:deque=None, show_route:bool=True, animation:bool=True, mas_customers:int=0, graph:dict={}, mode:bool=True) -> None:
+        show = self._draw_map(route, show_route, animation, mas_customers, graph, mode)
         plt.show()
