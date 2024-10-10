@@ -7,7 +7,7 @@ class CustomerAgent:
         self.y:float = y
 
 
-    def move(self, obstacles:int, other_agents:process.mas.CustomerAgent, width:int, height:int) -> None:
+    def move(self, obstacles:int, other_agents:list, width:int, height:int) -> None:
         new_x:int = self.x + random.choice([0, 0.5])
         new_y:int = self.y + random.choice([0, 0.5])
 

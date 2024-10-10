@@ -6,10 +6,11 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation as fanim
 
 from .graph import Graph
+from .mas import CustomerAgent
 
 
 class Sim:
-    def __init__(self, map_data:list, start:tuple, goal:tuple) -> None:
+    def __init__(self, map_data:list, start:tuple, goal:tuple, num_steps:int=0, mas_customers:int=0) -> None:
         self.height:int = len(map_data)
         self.width:int = len(map_data[0])
         self.data:list = [ [ [ 255, 255, 255 ] for j in range(self.width) ] for i in range(self.height) ]
@@ -30,7 +31,16 @@ class Sim:
         #self.goal:tuple = (3, 9)
         self.update_times:int = 0
 
-        self.graph:process.graph.Graph = Graph(map_data)
+        self.mas_customers:int = mas_customers
+        self.num_steps:int = num_steps
+
+        if mas_customers > 0:
+            self.mas_customers = mas_customers
+            self.graph:process.graph.Graph = Graph(map_data)
+            self.obstacles:list = self.graph.get_obstacles()
+            self.num_steps:int = num_steps
+            self.agents:list = [ CustomerAgent(1, 1) for _ in range(mas_customers) ] 
+            self.position_over_time:list = []
 
         for y, horizontal in enumerate(map_data):
             for x, block in enumerate(horizontal):
@@ -48,6 +58,26 @@ class Sim:
                     self.data[y][x] = self.keep_out
 
 
+    def _update_positions(self) -> list:
+        for agent in self.agents:
+            agent.move(self.obstacles, [ a for a in self.agents if a != agent ], self.width, self.height)
+
+        return [ (agent.x, agent.y) for agent in self.agents ]
+
+
+    def _update_customers(self) -> None:
+        for step in range(self.num_steps):
+            positions:list = self._update_positions()
+            self.position_over_time.append(positions)
+
+
+    def _animated_mas(self, frame:int) -> None:
+        location = self.customers.pop(0)
+        location.remove()
+        x_values, y_values = zip(*self.position_over_time[frame])
+        self.customers = self.ax.plot(x_values, y_values, 'yo', ms=7, mew=0, mfc='red')
+
+
     def _update(self, frames) -> None:
         if frames >= len(self.draw_router):
             return None
@@ -60,7 +90,7 @@ class Sim:
         self.update_times += 1
 
 
-    def _draw_map(self, route:deque, show_route:bool, animation:bool, mas_customers:int, graph:dict,  mode:bool) -> fanim:
+    def _draw_map(self, route:deque, show_route:bool, animation:bool, graph:dict, mode:bool) -> fanim:
         fig, self.ax = plt.subplots(1, 1, figsize=(6, 6))
         if mode:
             window_title:str = "改良版A*アルゴリズム"
@@ -87,55 +117,62 @@ class Sim:
         sc_go = self.ax.scatter([self.goal[0]],  [self.goal[1]],  c='r', s=300)
         tx_go = self.ax.text(self.goal[0],  self.goal[1],  'G', ha='center', va='center', fontsize=15, c='w', weight='bold')
 
-        if animation or mas_customers > 0:
-            self.draw_router:deque = deque([])
-            digit:int = 0
-            crr:tuple = ()
-            nxt:tuple = ()
-            obstracts:list = self.graph.get_obstract()
+        if animation or self.mas_customers > 0:
+            if animation:
+                self.draw_router:deque = deque([])
+                digit:int = 0
+                crr:tuple = ()
+                nxt:tuple = ()
 
-            for step in range(len(router)):
-                crr = router[len(router) - step - 1]
-                #print(graph[crr][1])
-                nxt = router[len(router) - step - 2 if len(router) > step + 1 else len(router) - step - 1]
-                dx:int = crr[0] - nxt[0]
-                dy:int = crr[1] - nxt[1]
-                x:float = float(crr[0])
-                y:float = float(crr[1])
-                if graph[crr][1] < 1.0:
-                    for digit in range(80):
-                        if dx > 0:
-                            x = crr[0] + (digit * -0.0125)
-                        elif dx < 0:
-                            x = crr[0] + (digit * 0.0125)
-                        if dy > 0:
-                            y = crr[1] + (digit * -0.0125)
-                        elif dy < 0:
-                            y = crr[1] + (digit * 0.0125)
-                        self.draw_router.append((x, y))
-                        if len(router) <= step + 1:
-                            break
-                else:
-                    for digit in range(40):
-                        if dx > 0:
-                            x = crr[0] + (digit * -0.025)
-                        elif dx < 0:
-                            x = crr[0] + (digit * 0.025)
-                        if dy > 0:
-                            y = crr[1] + (digit * -0.025)
-                        elif dy < 0:
-                            y = crr[1] + (digit * 0.025)
-                        self.draw_router.append((x, y))
-                        if len(router) <= step + 1:
-                            break
+                for step in range(len(router)):
+                    crr = router[len(router) - step - 1]
+                    nxt = router[len(router) - step - 2 if len(router) > step + 1 else len(router) - step - 1]
+                    dx:int = crr[0] - nxt[0]
+                    dy:int = crr[1] - nxt[1]
+                    x:float = float(crr[0])
+                    y:float = float(crr[1])
+                    if graph[crr][1] < 1.0:
+                        for digit in range(80):
+                            if dx > 0:
+                                x = crr[0] + (digit * -0.0125)
+                            elif dx < 0:
+                                x = crr[0] + (digit * 0.0125)
+                            if dy > 0:
+                                y = crr[1] + (digit * -0.0125)
+                            elif dy < 0:
+                                y = crr[1] + (digit * 0.0125)
+                            self.draw_router.append((x, y))
+                            if len(router) <= step + 1:
+                                break
+                    else:
+                        for digit in range(40):
+                            if dx > 0:
+                                x = crr[0] + (digit * -0.025)
+                            elif dx < 0:
+                                x = crr[0] + (digit * 0.025)
+                            if dy > 0:
+                                y = crr[1] + (digit * -0.025)
+                            elif dy < 0:
+                                y = crr[1] + (digit * 0.025)
+                            self.draw_router.append((x, y))
+                            if len(router) <= step + 1:
+                                break
 
-            anim = fanim(fig, self._update, frames=1, interval=20)
+                anim = fanim(fig, self._update, frames=1, interval=20)
 
-            return anim
+                return anim
+
+            elif self.mas_customers > 0:
+                self.customers = self.ax.plot(0, 0)
+                self.customers = self.ax.plot(0, 0, 'yo', ms=7, mew=0, mfc='red')
+                self._update_customers()
+                anim = fanim(fig, self._animated_mas, frames=self.num_steps, repeat=False)
+
+                return anim
 
         return None
 
 
-    def show_graph(self, ax=None, route:deque=None, show_route:bool=True, animation:bool=True, mas_customers:int=0, graph:dict={}, mode:bool=True) -> None:
-        show = self._draw_map(route, show_route, animation, mas_customers, graph, mode)
+    def show_graph(self, ax=None, route:deque=None, show_route:bool=True, animation:bool=True, graph:dict={}, mode:bool=True) -> None:
+        show = self._draw_map(route, show_route, animation, graph, mode)
         plt.show()

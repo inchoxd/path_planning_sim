@@ -33,10 +33,12 @@ class App:
             ext:str = self.args.f.split('.')[1]
             start:tuple = tuple([ int(p) for p in self.args.s.split(',') ])
             goal:tuple = tuple([ int(p) for p in self.args.g.split(',') ])
-            self.mas_customers:int = 0
+            num_steps:int = 0
+            mas_customers:int = 0
 
             if self.args.mas:
-                self.mas_customers = int(self.args.mas)
+                mas_customers = tuple([ int(v) for v in self.args.mas.split(',') ])[0]
+                num_steps = tuple([ int(v) for v in self.args.mas.split(',') ])[1]
 
             with open(self.args.f, 'r') as dta:
                 f_data:list = dta.readlines()
@@ -50,7 +52,7 @@ class App:
                     print('\033[31m[ERROR]\033[0m INVALID FILE TYPE!')
                     sys.exit(1)
 
-            self.sim:process.sim.Sim = Sim(self.map_data, start, goal)
+            self.sim:process.sim.Sim = Sim(self.map_data, start, goal, num_steps=num_steps, mas_customers=mas_customers)
             self.graph:process.graph.Graph = Graph(self.map_data)
             self.a_star = Astar()
 
@@ -61,7 +63,7 @@ class App:
             route:list = self.a_star.a_star(graph, self.sim.start, self.sim.goal)
 
             if self.args.no_app == False:
-                self.sim.show_graph(route=route, show_route=self.args.no_route, animation=self.args.no_anime, mas_customers=self.mas_customers, graph=(graph if self.args.no_anime and self.args.no_plus_score else self.graph.create_graph(not self.args.no_plus_score) if self.args.no_anime and not self.args.no_plus_score else {}), mode=self.args.no_plus_score)
+                self.sim.show_graph(route=route, show_route=self.args.no_route, animation=self.args.no_anime, graph=(graph if self.args.no_anime and self.args.no_plus_score else self.graph.create_graph(not self.args.no_plus_score) if self.args.no_anime and not self.args.no_plus_score else {}), mode=self.args.no_plus_score)
         if len(sys.argv) <=1 or self.args.no_app:
             event:str = ''
             values:list = []
