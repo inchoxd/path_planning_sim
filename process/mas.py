@@ -8,8 +8,8 @@ class CustomerAgent:
 
 
     def move(self, obstacles:int, other_agents:list, width:int, height:int) -> None:
-        new_x:int = self.x + random.choice([0, 0.5])
-        new_y:int = self.y + random.choice([0, 0.5])
+        new_x:int = self.x + random.choice([-0.5, 0.5])
+        new_y:int = self.y + random.choice([-0.5, 0.5])
 
         if new_x < 0 or new_x >= width:
             return
