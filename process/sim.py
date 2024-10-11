@@ -39,7 +39,7 @@ class Sim:
             self.graph:process.graph.Graph = Graph(map_data)
             self.obstacles:list = self.graph.get_obstacles()
             self.num_steps:int = num_steps
-            self.agents:list = [ CustomerAgent(1, 1) for _ in range(mas_customers) ] 
+            self.agents:list = [ CustomerAgent(11, 3) for _ in range(mas_customers) ] 
             self.position_over_time:list = []
 
         for y, horizontal in enumerate(map_data):
@@ -69,7 +69,7 @@ class Sim:
         for step in range(self.num_steps):
             positions:list = self._update_positions()
             self.position_over_time.append(positions)
-
+        
 
     def _animated_mas(self, frame:int) -> None:
         location = self.customers.pop(0)
@@ -163,7 +163,7 @@ class Sim:
                 return anim
 
             elif self.mas_customers > 0:
-                self.customers = self.ax.plot(0, 0, 'yo', ms=8, mew=0, mfc='red')
+                self.customers = self.ax.plot(11, 3, 'yo', ms=8, mew=0, mfc='red')
                 self._update_customers()
                 anim = fanim(fig, self._animated_mas, frames=self.num_steps, repeat=False)
 
