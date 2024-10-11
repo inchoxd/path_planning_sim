@@ -75,7 +75,7 @@ class Sim:
         location = self.customers.pop(0)
         location.remove()
         x_values, y_values = zip(*self.position_over_time[frame])
-        self.customers = self.ax.plot(x_values, y_values, 'yo', ms=7, mew=0, mfc='red')
+        self.customers = self.ax.plot(x_values, y_values, 'yo', ms=8, mew=0, mfc='red')
 
 
     def _update(self, frames) -> None:
@@ -163,8 +163,7 @@ class Sim:
                 return anim
 
             elif self.mas_customers > 0:
-                self.customers = self.ax.plot(0, 0)
-                self.customers = self.ax.plot(0, 0, 'yo', ms=7, mew=0, mfc='red')
+                self.customers = self.ax.plot(0, 0, 'yo', ms=8, mew=0, mfc='red')
                 self._update_customers()
                 anim = fanim(fig, self._animated_mas, frames=self.num_steps, repeat=False)
 
