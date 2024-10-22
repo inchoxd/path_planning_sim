@@ -58,6 +58,10 @@ class Sim:
                     self.data[y][x] = self.keep_out
 
 
+    def _gen_robot_frame(self) -> list:
+        pass
+
+
     def _update_positions(self) -> list:
         for agent in self.agents:
             agent.move(self.obstacles, [ a for a in self.agents if a != agent ], self.width, self.height)
@@ -158,7 +162,7 @@ class Sim:
                             if len(router) <= step + 1:
                                 break
 
-                anim = fanim(fig, self._update, frames=1, interval=20)
+                anim = fanim(fig, self._update, frames=1, interval=33.33)
 
                 return anim
 
