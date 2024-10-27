@@ -10,7 +10,7 @@ from .mas import CustomerAgent
 
 
 class Sim:
-    def __init__(self, map_data:list, start:tuple, goal:tuple, num_steps:int=0, mas_customers:int=0) -> None:
+    def __init__(self, map_data:list, start:tuple, goal:tuple, mas_customers:int=0) -> None:
         self.height:int = len(map_data)
         self.width:int = len(map_data[0])
         self.data:list = [ [ [ 255, 255, 255 ] for j in range(self.width) ] for i in range(self.height) ]
@@ -32,13 +32,13 @@ class Sim:
         self.update_times:int = 0
 
         self.mas_customers:int = mas_customers
-        self.num_steps:int = num_steps
+        self.mas_frames_data:list = []
 
         if mas_customers > 0:
             self.mas_customers = mas_customers
             self.graph:process.graph.Graph = Graph(map_data)
             self.obstacles:list = self.graph.get_obstacles()
-            self.num_steps:int = num_steps
+            print(self.obstacles)
             self.agents:list = [ CustomerAgent(11, 3) for _ in range(mas_customers) ] 
             self.position_over_time:list = []
 
@@ -58,8 +58,61 @@ class Sim:
                     self.data[y][x] = self.keep_out
 
 
-    def _gen_robot_frame(self) -> list:
-        pass
+    def _gen_robot_frame(self, graph:dict, router:deque) -> None:
+        for step in range(len(router)):
+            crr:tuple = router[len(router) - step - 1]
+            nxt:tuple = router[len(router) - step - 2 if len(router) > step + 1 else len(router) - step - 1]
+            dx:int = crr[0] - nxt[0]
+            dy:int = crr[1] - nxt[1]
+            x:float = float(crr[0])
+            y:float = float(crr[1])
+            if graph[crr][1] < 1.0:
+                for digit in range(80):
+                    if dx > 0:
+                        x = crr[0] + (digit * -0.0125)
+                    elif dx < 0:
+                        x = crr[0] + (digit * 0.0125)
+                    if dy > 0:
+                        y = crr[1] + (digit * -0.0125)
+                    elif dy < 0:
+                        y = crr[1] + (digit * 0.0125)
+                    self.draw_router.append((round(x, 3), round(y, 3)))
+                    if len(router) <= step + 1:
+                        break
+            else:
+                for digit in range(40):
+                    if dx > 0:
+                        x = crr[0] + (digit * -0.025)
+                    elif dx < 0:
+                        x = crr[0] + (digit * 0.025)
+                    if dy > 0:
+                        y = crr[1] + (digit * -0.025)
+                    elif dy < 0:
+                        y = crr[1] + (digit * 0.025)
+                    self.draw_router.append((round(x, 3), round(y, 3)))
+                    if len(router) <= step + 1:
+                        break
+
+
+    def _gen_mas_frame(self) -> None:
+        pos:tuple = self.draw_router[0]
+        prv_pos:tuple = self.draw_router[0]
+        rbt_pos_i:int = 0
+        prv_rbt_pos_i:int = 0
+        i:int = 0
+        while(len(self.position_over_time) > i):
+            pos = self.draw_router[rbt_pos_i]
+            if pos not in self.position_over_time[i]:
+                rbt_pos_i += 1
+
+            self.position_over_time[i].append(pos)
+            # print(f'{[i]}, {pos}, {self.position_over_time[i]}')
+
+            i += 1
+
+            if len(self.draw_router) <= i:
+                del self.position_over_time[i:]
+                break
 
 
     def _update_positions(self) -> list:
@@ -69,17 +122,28 @@ class Sim:
         return [ (agent.x, agent.y) for agent in self.agents ]
 
 
-    def _update_customers(self) -> None:
-        for step in range(self.num_steps):
+    def _update_customers(self, num_steps:int) -> None:
+        for step in range(num_steps):
             positions:list = self._update_positions()
             self.position_over_time.append(positions)
         
 
     def _animated_mas(self, frame:int) -> None:
-        location = self.customers.pop(0)
-        location.remove()
-        x_values, y_values = zip(*self.position_over_time[frame])
-        self.customers = self.ax.plot(x_values, y_values, 'yo', ms=8, mew=0, mfc='red')
+        customers_x:list
+        customers_y:list
+        rbt_pos:tuple = ()
+        rbt_x:float
+        rbt_y:float
+
+        customers_location = self.customers.pop(0)
+        customers_location.remove()
+        rbt_pos = self.position_over_time[frame].pop(-1)
+        # print(rbt_pos)
+        customers_x, customers_y = zip(*self.position_over_time[frame])
+        self.customers = self.ax.plot(customers_x, customers_y, 'yo', ms=8, mew=0, mfc='red')
+        robot_location = self.sc_rbt.pop(0)
+        robot_location.remove()
+        self.sc_rbt = self.ax.plot(rbt_pos[0], rbt_pos[1], 'yo', ms=14, mew=0, mfc='black')
 
 
     def _update(self, frames) -> None:
@@ -128,50 +192,25 @@ class Sim:
                 crr:tuple = ()
                 nxt:tuple = ()
 
-                for step in range(len(router)):
-                    crr = router[len(router) - step - 1]
-                    nxt = router[len(router) - step - 2 if len(router) > step + 1 else len(router) - step - 1]
-                    dx:int = crr[0] - nxt[0]
-                    dy:int = crr[1] - nxt[1]
-                    x:float = float(crr[0])
-                    y:float = float(crr[1])
-                    if graph[crr][1] < 1.0:
-                        for digit in range(80):
-                            if dx > 0:
-                                x = crr[0] + (digit * -0.0125)
-                            elif dx < 0:
-                                x = crr[0] + (digit * 0.0125)
-                            if dy > 0:
-                                y = crr[1] + (digit * -0.0125)
-                            elif dy < 0:
-                                y = crr[1] + (digit * 0.0125)
-                            self.draw_router.append((x, y))
-                            if len(router) <= step + 1:
-                                break
-                    else:
-                        for digit in range(40):
-                            if dx > 0:
-                                x = crr[0] + (digit * -0.025)
-                            elif dx < 0:
-                                x = crr[0] + (digit * 0.025)
-                            if dy > 0:
-                                y = crr[1] + (digit * -0.025)
-                            elif dy < 0:
-                                y = crr[1] + (digit * 0.025)
-                            self.draw_router.append((x, y))
-                            if len(router) <= step + 1:
-                                break
+                self._gen_robot_frame(graph, router)
+                if self.mas_customers > 0:
+                    tmp_frames:int = len(self.draw_router)
+                    self._update_customers(tmp_frames * 2)
+                    self._gen_mas_frame()
+                    self.customers = self.ax.plot(11, 3, 'yo', ms=8, mew=0, mfc='red')
+                    anim = fanim(fig, self._animated_mas, frames=len(self.position_over_time), interval=33.33, repeat=False)
 
-                anim = fanim(fig, self._update, frames=1, interval=33.33)
+                # anim = fanim(fig, self._update, frames=1, interval=33.33)
 
                 return anim
-
+            """
             elif self.mas_customers > 0:
                 self.customers = self.ax.plot(11, 3, 'yo', ms=8, mew=0, mfc='red')
                 self._update_customers()
                 anim = fanim(fig, self._animated_mas, frames=self.num_steps, repeat=False)
 
                 return anim
+            """
 
         return None
 

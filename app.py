@@ -33,12 +33,10 @@ class App:
             ext:str = self.args.f.split('.')[1]
             start:tuple = tuple([ int(p) for p in self.args.s.split(',') ])
             goal:tuple = tuple([ int(p) for p in self.args.g.split(',') ])
-            num_steps:int = 0
             mas_customers:int = 0
 
             if self.args.mas:
                 mas_customers = tuple([ int(v) for v in self.args.mas.split(',') ])[0]
-                num_steps = tuple([ int(v) for v in self.args.mas.split(',') ])[1]
 
             with open(self.args.f, 'r') as dta:
                 f_data:list = dta.readlines()
@@ -52,7 +50,7 @@ class App:
                     print('\033[31m[ERROR]\033[0m INVALID FILE TYPE!')
                     sys.exit(1)
 
-            self.sim:process.sim.Sim = Sim(self.map_data, start, goal, num_steps=num_steps, mas_customers=mas_customers)
+            self.sim:process.sim.Sim = Sim(self.map_data, start, goal, mas_customers=mas_customers)
             self.graph:process.graph.Graph = Graph(self.map_data)
             self.a_star = Astar()
 
