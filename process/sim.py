@@ -38,7 +38,6 @@ class Sim:
             self.mas_customers = mas_customers
             self.graph:process.graph.Graph = Graph(map_data)
             self.obstacles:list = self.graph.get_obstacles()
-            print(self.obstacles)
             self.agents:list = [ CustomerAgent(11, 3) for _ in range(mas_customers) ] 
             self.position_over_time:list = []
 
@@ -96,7 +95,6 @@ class Sim:
 
     def _gen_mas_frame(self) -> None:
         pos:tuple = self.draw_router[0]
-        prv_pos:tuple = self.draw_router[0]
         rbt_pos_i:int = 0
         prv_rbt_pos_i:int = 0
         i:int = 0
@@ -138,7 +136,6 @@ class Sim:
         customers_location = self.customers.pop(0)
         customers_location.remove()
         rbt_pos = self.position_over_time[frame].pop(-1)
-        # print(rbt_pos)
         customers_x, customers_y = zip(*self.position_over_time[frame])
         self.customers = self.ax.plot(customers_x, customers_y, 'yo', ms=8, mew=0, mfc='red')
         robot_location = self.sc_rbt.pop(0)
@@ -199,18 +196,10 @@ class Sim:
                     self._gen_mas_frame()
                     self.customers = self.ax.plot(11, 3, 'yo', ms=8, mew=0, mfc='red')
                     anim = fanim(fig, self._animated_mas, frames=len(self.position_over_time), interval=33.33, repeat=False)
-
-                # anim = fanim(fig, self._update, frames=1, interval=33.33)
-
-                return anim
-            """
-            elif self.mas_customers > 0:
-                self.customers = self.ax.plot(11, 3, 'yo', ms=8, mew=0, mfc='red')
-                self._update_customers()
-                anim = fanim(fig, self._animated_mas, frames=self.num_steps, repeat=False)
+                else:
+                    anim = fanim(fig, self._update, frames=1, interval=33.33)
 
                 return anim
-            """
 
         return None
 
