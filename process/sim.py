@@ -98,7 +98,8 @@ class Sim:
         rbt_pos_i:int = 0
         prv_rbt_pos_i:int = 0
         i:int = 0
-        while(len(self.position_over_time) > i):
+
+        for i in range(len(self.position_over_time)):
             pos = self.draw_router[rbt_pos_i]
             if pos not in self.position_over_time[i]:
                 rbt_pos_i += 1
@@ -135,11 +136,11 @@ class Sim:
 
         customers_location = self.customers.pop(0)
         customers_location.remove()
+        robot_location = self.sc_rbt.pop(0)
+        robot_location.remove()
         rbt_pos = self.position_over_time[frame].pop(-1)
         customers_x, customers_y = zip(*self.position_over_time[frame])
         self.customers = self.ax.plot(customers_x, customers_y, 'yo', ms=8, mew=0, mfc='red')
-        robot_location = self.sc_rbt.pop(0)
-        robot_location.remove()
         self.sc_rbt = self.ax.plot(rbt_pos[0], rbt_pos[1], 'yo', ms=14, mew=0, mfc='black')
 
 
