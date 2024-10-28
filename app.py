@@ -33,10 +33,7 @@ class App:
             ext:str = self.args.f.split('.')[1]
             start:tuple = tuple([ int(p) for p in self.args.s.split(',') ])
             goal:tuple = tuple([ int(p) for p in self.args.g.split(',') ])
-            mas_customers:int = 0
-
-            if self.args.mas:
-                mas_customers = tuple([ int(v) for v in self.args.mas.split(',') ])[0]
+            mas_customers:int = int(self.args.mas)
 
             with open(self.args.f, 'r') as dta:
                 f_data:list = dta.readlines()
