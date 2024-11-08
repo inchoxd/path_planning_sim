@@ -35,6 +35,6 @@ class Graph:
     def get_obstacles(self)->list:
         x:int = 0
         y:int = 0
-        obstacles:list = [ (x, y) for y in range(len(self.map_data)) for x in range(len(self.map_data[y])) if self.map_data[y][x] == 0 ]
+        obstacles:list = [ (round(x, 3), round(y, 3)) for y in range(len(self.map_data)) for x in range(len(self.map_data[y])) if self.map_data[y][x] == 0 ]
 
         return obstacles
