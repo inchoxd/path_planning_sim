@@ -101,8 +101,13 @@ class Sim:
 
         for i in range(len(self.position_over_time)):
             pos = self.draw_router[rbt_pos_i]
+            for c_pos in self.position_over_time[i]:
+                if (pos[0] - 0.4 < c_pos[0] < pos[0] + 0.4) and (pos[1] - 0.4 < c_pos[1] < pos[1] + 0.4):
+                    rbt_pos_i += 1
+            """
             if pos not in self.position_over_time[i]:
                 rbt_pos_i += 1
+            """
 
             self.position_over_time[i].append(pos)
             # print(f'{[i]}, {pos}, {self.position_over_time[i]}')
@@ -141,7 +146,7 @@ class Sim:
         rbt_pos = self.position_over_time[frame].pop(-1)
         customers_x, customers_y = zip(*self.position_over_time[frame])
         self.customers = self.ax.plot(customers_x, customers_y, 'yo', ms=8, mew=0, mfc='red')
-        self.sc_rbt = self.ax.plot(rbt_pos[0], rbt_pos[1], 'yo', ms=14, mew=0, mfc='black')
+        self.sc_rbt = self.ax.plot(rbt_pos[0], rbt_pos[1], 'yo', ms=12, mew=0, mfc='black')
 
 
     def _update(self, frames) -> None:
