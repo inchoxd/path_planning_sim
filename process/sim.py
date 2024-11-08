@@ -96,25 +96,27 @@ class Sim:
     def _gen_mas_frame(self) -> None:
         pos:tuple = self.draw_router[0]
         rbt_pos_i:int = 0
+        c_pos_i:int = 0
         prv_rbt_pos_i:int = 0
         i:int = 0
 
         for i in range(len(self.position_over_time)):
             pos = self.draw_router[rbt_pos_i]
             for c_pos in self.position_over_time[i]:
-                if (pos[0] - 0.4 < c_pos[0] < pos[0] + 0.4) and (pos[1] - 0.4 < c_pos[1] < pos[1] + 0.4):
-                    rbt_pos_i += 1
-            """
-            if pos not in self.position_over_time[i]:
+                if (pos[0] - 0.6 < c_pos[0] < pos[0] + 0.6) and (pos[1] - 0.6 < c_pos[1] < pos[1] + 0.6):
+                    break
+                c_pos_i += 1
+
+            if c_pos_i >= len(self.position_over_time[i]):
                 rbt_pos_i += 1
-            """
+            c_pos_i = 0
 
             self.position_over_time[i].append(pos)
             # print(f'{[i]}, {pos}, {self.position_over_time[i]}')
 
             i += 1
 
-            if len(self.draw_router) <= i:
+            if len(self.draw_router) <= rbt_pos_i:
                 del self.position_over_time[i:]
                 break
 
